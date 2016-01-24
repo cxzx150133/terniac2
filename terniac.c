@@ -147,11 +147,23 @@ void dec2tern(int num){
         return;
 }
 
-char ternascii(int * tryte){
+/* Output helper */
+char tern2ascii(int * tryte){
 	int num;
 	num=tern2dec(tryte);
+	/* digits */
 	if ((num >= 0) && (num <= 9)) return (char) (num+48);
-	return '?';
+	/* uppercase letters */
+	else if ((num >= 10) && (num <= 35)) return (char) (num+55);
+	else return '?';
+}
+
+/* Input helper */
+int ascii2dec(char c){
+	/* digits */
+	if ((c >= 48) && (c <= 57)) return (c-48);
+	else if ((c >= 65) && (c <= 75)) return (c-55);
+	else return 42;
 }
 
 int main(int argc, char *argv[]){
@@ -215,17 +227,19 @@ int main(int argc, char *argv[]){
 		cycles++;
 		/* Awaiting input */
 		if(tern2dec(mem[RANGE-4]) != 0) {
-			printf("input\n");
 			system("/bin/stty raw");
 			c = getchar();
 			system("/bin/stty cooked");
-			/* Need function to convert ascii to ternary and store it */
-			printf("%c",c);
+			/* ascii2dec will need to turn a char into the terniac decimal encoding fo that char */
+			dec2tern((ascii2dec(c)));
+			for(i=0;i<WIDTH;i++){
+				mem[RANGE-3][i] = itryte[i];
+			}
 			zeroTryte(mem[RANGE-4]);
 		}
 		/* Output */
 		if(tern2dec(mem[RANGE-2]) != 0) {
-			c = ternascii(mem[RANGE-1]);
+			c = tern2ascii(mem[RANGE-1]);
 			printf("%c",c);
 			zeroTryte(mem[RANGE-2]);
 		}
