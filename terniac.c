@@ -219,7 +219,7 @@ int main(int argc, char *argv[]){
 			system("/bin/stty raw");
 			c = getchar();
 			system("/bin/stty cooked");
-			// Need function to convert ascii to ternary and store it
+			/* Need function to convert ascii to ternary and store it */
 			printf("%c",c);
 			zeroTryte(mem[RANGE-4]);
 		}
