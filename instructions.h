@@ -1,8 +1,8 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
-#define WIDTH 9
-#define RANGE 19683
+#define WIDTH 12
+#define RANGE 531441
 
 int condSkip(int * tryte);
 void invTryte(int * tryte);

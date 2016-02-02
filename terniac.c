@@ -2,149 +2,58 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 #include "instructions.h"
 #include "ternutils.h"
 
-#define WIDTH 9
-#define RANGE 19683
-#define STAHP 500000
+#define WIDTH 12
+#define RANGE 531441
+#define STAHP 50
 
 void dispTryte(int * tryte);
-void dump(int ** mem);
 void load(int **mem, char * filename);
 int execute(int **mem, int *pc, int flow, int *areg, int *breg, int *creg);
 
-int itryte[9];
+int itryte[12];
+
+int intexp(int a, int b){
+	int acc;
+	assert(b>=0);
+	if(0==b) return 1;
+	acc=a;
+	b--;
+	while(b > 0){
+		acc = acc*a;
+		b--;
+	}
+	return acc;
+}
 
 /* Stores conversion result in global itryte[] */
 void dec2tern(int num){
-        int i;
+	int i;
 
-        for(i=0;i<WIDTH;i++){
-                        itryte[i]=0;
-        }
-		/* 6561's place */
-                if(num<0){
-                        if(num<(-2187-729-243-81-27-9-3-1)){
-                                itryte[8]=-1;
-                                num+=6561;
-                        }
+	for(i=0;i<WIDTH;i++){
+		itryte[i]=0;
+	}
 
-                }else{
-                        if(num>(2187+729+243+81+27+9+3+1)){
-                                itryte[8]=1;
-                                num-=6561;
-                        }
-                }
+	/* Replaces some nasty spagetti */
+	for(i=WIDTH-1;i>=0;i--){
+		if(num<0){
+			if(num<(-((intexp(3,(i))-1)/2))){
+				itryte[i]=-1;
+				num+=(int)intexp(3,i);
+			}
 
-		/* 2187's place */
-                if(num<0){
-                        if(num<(-729-243-81-27-9-3-1)){
-                                itryte[7]=-1;
-                                num+=2187;
-                        }
-
-                }else{
-                        if(num>(729+243+81+27+9+3+1)){
-                                itryte[7]=1;
-                                num-=2187;
-                        }
-                }
-
-		/* 729's place */
-                if(num<0){
-                        if(num<(-243-81-27-9-3-1)){
-                                itryte[6]=-1;
-                                num+=729;
-                        }
-
-                }else{
-                        if(num>(243+81+27+9+3+1)){
-                                itryte[6]=1;
-                                num-=729;
-                        }
-                }
-
-                /* 243's place */
-                if(num<0){
-                        if(num<(-81-27-9-3-1)){
-                                itryte[5]=-1;
-                                num+=243;
-                        }
-
-                }else{
-                        if(num>(81+27+9+3+1)){
-                                itryte[5]=1;
-                                num-=243;
-                        }
-                }
-
-                /* 81's place */
-                if(num<0){
-                        if(num<(-27-9-3-1)){
-                                itryte[4]=-1;
-                                num+=81;
-                        }
-                }else{
-                        if(num>(27+9+3+1)){
-                                itryte[4]=1;
-                                num-=81;
-                        }
-
-                }
-       
-                /* 27's place */
-                if(num<0){
-                        if(num<(-9-3-1)){
-                                itryte[3]=-1;
-                                num+=27;
-                        }
-                }else{
-                        if(num>(9+3+1)){
-                                itryte[3]=1;
-                                num-=27;
-                        }
-                }
-                /* 9's place */
-                if(num<0){
-                        if(num<(-3-1)){
-                                itryte[2]=-1;
-                                num+=9;
-                        }
-                }else{
-                        if(num>(3+1)){
-                                itryte[2]=1;
-                                num-=9;
-                        }
-                }
-
-                /* 3's place */
-                if(num<0){
-                        if(num<(-1)){
-                                itryte[1]=-1;
-                                num+=3;
-                        }
-                }else{
-                        if(num>(1)){
-                                itryte[1]=1;
-                                num-=3;
-                        }
-                }
-
-                /* 1's place */
-                if(num<0){
-                        if(num<(0)){
-                                itryte[0]=-1;
-                                num+=1;
-                        }
-                }else{
-                        if(num>(0)){
-                                itryte[0]=1;
-                                num-=1;
-                        }
-                }
-        return;
+		}else{
+			if(num>((intexp(3,(i))-1)/2)){
+				itryte[i]=1;
+				num-=(int)intexp(3,i);
+			}
+		}
+	}
+	return;
 }
 
 /* Output helper */
@@ -170,7 +79,6 @@ int main(int argc, char *argv[]){
 	int i;
 	int quit;
 	int regdisp=0;
-	int dumpyes=0;
 	int flow=0;
 	int cycles=0;
 	char c;
@@ -186,9 +94,7 @@ int main(int argc, char *argv[]){
 	
 	/* Verbosity settings */
 	for (i = 1; i < argc; i++) {
-		if (!strcmp(argv[i],"-dump"))
-			dumpyes = 1;
-		else if (!strcmp(argv[i],"-flow"))
+		if (!strcmp(argv[i],"-flow"))
 			flow = 1;
 		else if (!strcmp(argv[i],"-reg"))
 			regdisp = 1;
@@ -216,21 +122,17 @@ int main(int argc, char *argv[]){
 	puts("Loading Program");
 	load(mem, argv[1]);
 
-	/* Show contents of whole memory space */
-	if(dumpyes) dump(mem);
-
 	/* This is the main loop */
 	puts("Beginning execution...");
 	while(*pc < RANGE){
 		if(flow) printf("%d: ",*pc+lowmem);
 		quit = (execute(mem, pc, flow, areg, breg, creg));
 		cycles++;
-		/* Awaiting input */
+		/* Input */
 		if(tern2dec(mem[RANGE-4]) != 0) {
 			system("/bin/stty raw");
 			c = getchar();
 			system("/bin/stty cooked");
-			/* ascii2dec will need to turn a char into the terniac decimal encoding fo that char */
 			dec2tern((ascii2dec(c)));
 			for(i=0;i<WIDTH;i++){
 				mem[RANGE-3][i] = itryte[i];
@@ -248,10 +150,6 @@ int main(int argc, char *argv[]){
 	}
 
 	printf("Execution finished after %d cycles.\n",cycles);
-	if(dumpyes){ 
-		dump(mem);
-		printf("\n");
-	}
 	if(regdisp){
 		puts("REG A");
 		dispTryte(areg);
@@ -323,19 +221,19 @@ int execute(int **mem, int *pc, int flow, int *areg, int *breg, int *creg){
 	}else if (tryte[0]==-1&&tryte[1]==-1&&tryte[2]==-1){
 		if(flow) puts("LD A ");
 		for(i=0;i<WIDTH;i++){
-			areg[i]=mem[9841+tern2dec(mem[*pc+1])][i];
+			areg[i]=mem[265720+tern2dec(mem[*pc+1])][i];
 		}
 		*pc+=2;
 	}else if (tryte[0]==0&&tryte[1]==-1&&tryte[2]==-1){
 		if(flow) puts("LD B ");
 		for(i=0;i<WIDTH;i++){
-			breg[i]=mem[9841+tern2dec(mem[*pc+1])][i];
+			breg[i]=mem[265720+tern2dec(mem[*pc+1])][i];
 		}
 		*pc+=2;
 	}else if (tryte[0]==1&&tryte[1]==-1&&tryte[2]==-1){
 		if(flow) puts("LD C ");
 		for(i=0;i<WIDTH;i++){
-			creg[i]=mem[9841+tern2dec(mem[*pc+1])][i];
+			creg[i]=mem[265720+tern2dec(mem[*pc+1])][i];
 		}
 		*pc+=2;
 
@@ -370,31 +268,31 @@ int execute(int **mem, int *pc, int flow, int *areg, int *breg, int *creg){
 	/* 3 ADD instructions */
 	}else if(tryte[0]==-1 &&tryte[1]==1 &&tryte[2]==1){
 		if(flow) puts("ADD A");
-		addTryte(areg,mem[9841+tern2dec(mem[*pc+1])]);
+		addTryte(areg,mem[265720+tern2dec(mem[*pc+1])]);
 		*pc+=2;
 
 	}else if(tryte[0]==0 &&tryte[1]==1 &&tryte[2]==1){
 		if(flow) puts("ADD B");
-		addTryte(breg,mem[9841+tern2dec(mem[*pc+1])]);
+		addTryte(breg,mem[265720+tern2dec(mem[*pc+1])]);
 		*pc+=2;
 
 	}else if(tryte[0]==1 &&tryte[1]==1 &&tryte[2]==1){
 		if(flow) puts("ADD C");
-		addTryte(creg,mem[9841+tern2dec(mem[*pc+1])]);
+		addTryte(creg,mem[265720+tern2dec(mem[*pc+1])]);
 		*pc+=2;
 
 	/* 3 STO instructions */
 	}else if(tryte[0]==-1 &&tryte[1]==-1 &&tryte[2]==1){
 		if(flow) puts("STO A");
-		STO(areg,mem[9841+tern2dec(mem[*pc+1])]);
+		STO(areg,mem[265720+tern2dec(mem[*pc+1])]);
 		*pc+=2;
 	}else if(tryte[0]==0 &&tryte[1]==-1 &&tryte[2]==1){
 		if(flow) puts("STO B");
-		STO(breg,mem[9841+tern2dec(mem[*pc+1])]);
+		STO(breg,mem[265720+tern2dec(mem[*pc+1])]);
 		*pc+=2;
 	}else if(tryte[0]==1 &&tryte[1]==-1 &&tryte[2]==1){
 		if(flow) puts("STO C");
-		STO(creg,mem[9841+tern2dec(mem[*pc+1])]);
+		STO(creg,mem[265720+tern2dec(mem[*pc+1])]);
 		*pc+=2;
 
 	/* HALT Instruction */

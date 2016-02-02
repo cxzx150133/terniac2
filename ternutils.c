@@ -2,14 +2,13 @@
 #include <assert.h>
 #include "ternutils.h"
 
-#define WIDTH 9
-#define RANGE 19683
+#define WIDTH 12
+#define RANGE 531441
 
 void zeroTryte(int * tryte);
 int tern2dec(int * tryte);
 
 void dispTryte(int * tryte);
-void dump(int ** mem);
 void printhelp();
 
 void load(int **mem, char * filename);
@@ -57,20 +56,10 @@ void dispTryte(int * tryte){
 	}
 }
 
-void dump(int ** mem){
-	int i;
-	printf("Memory Dump:\n");
-	for(i=0; i<RANGE; i++){
-		dispTryte(mem[i]);
-		printf("\n");
-	}
-}
-
 void printhelp(){
 	puts("Specify input ternary executable as first argument");
 	puts("Valid options are: -dump -flow -reg");
 }
-
 
 /* ******************** */
 /* Initialization Utils */
@@ -83,7 +72,7 @@ void load(int **mem, char * filename){
 	assert(f != NULL);
 
 	for(i=0; i<RANGE; i++){
-		if(WIDTH != fscanf(f, "%d%d%d%d%d%d%d%d%d\n", &mem[i][0], &mem[i][1], &mem[i][2], &mem[i][3], &mem[i][4], &mem[i][5], &mem[i][6], &mem[i][7], &mem[i][8])) {
+		if(WIDTH != fscanf(f, "%d%d%d%d%d%d%d%d%d%d%d%d\n", &mem[i][0], &mem[i][1], &mem[i][2], &mem[i][3], &mem[i][4], &mem[i][5], &mem[i][6], &mem[i][7], &mem[i][8], &mem[i][9], &mem[i][10], &mem[i][11])) {
 			/* Seems to prevent an error. Comment out for a good time. */
 			zeroTryte(mem[i]);
 		}

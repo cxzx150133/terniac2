@@ -4,8 +4,8 @@
 
 #include "ternutils.h"
 
-#define WIDTH 9
-#define RANGE 19683
+#define WIDTH 12
+#define RANGE 531441
 
 int condSkip(int * tryte);
 void invTryte(int * tryte);
@@ -34,7 +34,7 @@ void invTryte(int * tryte){
 /* Places a new value in the program counter */
 void JP(int *tryte, int *pc){
 	/* Jump to address in following mem location */
-	*pc=9841+tern2dec(tryte);
+	*pc=265720+tern2dec(tryte);
 }
 
 /* Instruction to store a register value into memory */

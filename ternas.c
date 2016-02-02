@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 
-#define WIDTH 9
-#define RANGE 27
-#define LOW -9841
+#define WIDTH 12
+#define RANGE 531441
+#define LOW -265720
 
 #define MAX_CMD_ARGS 2
 #define BUF_LEN 5
@@ -34,49 +35,111 @@ int labelTrytes[NUMLABELS][WIDTH];
 
 /* Stores conversion result in global tryte[] */
 void decTern(int num){
-        int i;
+	int i;
 
-        for(i=0;i<WIDTH;i++){
-                        tryte[i]=0;
-        }
+	for(i=0;i<WIDTH;i++){
+		tryte[i]=0;
+	}
 
-		/* 6561's place */
+/* This is the right way, but for now I'll leave it as is */
+/*		for(i=WIDTH;i>=0;i--){
+			if(num<0){
+				if(num<(-((exp(3,(i-1))-1)/2)){
+					tryte[8]=-1;
+					num+=(int)pow(3,i-1);;
+				}
+
+			}else{
+				if(num>((exp(3,(i-1))-1)/2)){
+					tryte[8]=1;
+					num-=(int)pow(3,i-1);
+				}
+			}
+		}
+*/
+				/* 12th digit */
                 if(num<0){
-                        if(num<(-2187-729-243-81-27-9-3-1)){
+                        if(num<(-88573)){
+                                tryte[11]=-1;
+                                num+=177147;
+                        }
+
+                }else{
+                        if(num>(88573)){
+                                tryte[11]=1;
+                                num-=177147;
+                        }
+                }
+
+
+				/* 11th digit */
+                if(num<0){
+                        if(num<(-29524)){
+                                tryte[10]=-1;
+                                num+=59049;
+                        }
+
+                }else{
+                        if(num>(29524)){
+                                tryte[10]=1;
+                                num-=59049;
+                        }
+                }
+
+
+
+
+				/* 10th digit */
+                if(num<0){
+                        if(num<(-9841)){
+                                tryte[9]=-1;
+                                num+=19683;
+                        }
+
+                }else{
+                        if(num>(9841)){
+                                tryte[9]=1;
+                                num-=19683;
+                        }
+                }
+
+				/* 6561's place, 9th digit */
+                if(num<0){
+                        if(num<(-3280)){
                                 tryte[8]=-1;
                                 num+=6561;
                         }
 
                 }else{
-                        if(num>(2187+729+243+81+27+9+3+1)){
+                        if(num>(3280)){
                                 tryte[8]=1;
                                 num-=6561;
                         }
                 }
 
-		/* 2187's place */
+				/* 2187's place */
                 if(num<0){
-                        if(num<(-729-243-81-27-9-3-1)){
+                        if(num<(-1093)){
                                 tryte[7]=-1;
                                 num+=2187;
                         }
 
                 }else{
-                        if(num>(729+243+81+27+9+3+1)){
+                        if(num>(1093)){
                                 tryte[7]=1;
                                 num-=2187;
                         }
                 }
 
-		/* 729's place */
+				/* 729's place */
                 if(num<0){
-                        if(num<(-243-81-27-9-3-1)){
+                        if(num<(-364)){
                                 tryte[6]=-1;
                                 num+=729;
                         }
 
                 }else{
-                        if(num>(243+81+27+9+3+1)){
+                        if(num>(364)){
                                 tryte[6]=1;
                                 num-=729;
                         }
@@ -85,13 +148,13 @@ void decTern(int num){
 
                 /* 243's place */
                 if(num<0){
-                        if(num<(-81-27-9-3-1)){
+                        if(num<(-121)){
                                 tryte[5]=-1;
                                 num+=243;
                         }
 
                 }else{
-                        if(num>(81+27+9+3+1)){
+                        if(num>(121)){
                                 tryte[5]=1;
                                 num-=243;
                         }
@@ -99,12 +162,12 @@ void decTern(int num){
 
                 /* 81's place */
                 if(num<0){
-                        if(num<(-27-9-3-1)){
+                        if(num<(-40)){
                                 tryte[4]=-1;
                                 num+=81;
                         }
                 }else{
-                        if(num>(27+9+3+1)){
+                        if(num>(40)){
                                 tryte[4]=1;
                                 num-=81;
                         }
@@ -113,12 +176,12 @@ void decTern(int num){
        
                 /* 27's place */
                 if(num<0){
-                        if(num<(-9-3-1)){
+                        if(num<(-13)){
                                 tryte[3]=-1;
                                 num+=27;
                         }
                 }else{
-                        if(num>(9+3+1)){
+                        if(num>(13)){
                                 tryte[3]=1;
                                 num-=27;
                         }
@@ -126,12 +189,12 @@ void decTern(int num){
 
                 /* 9's place */
                 if(num<0){
-                        if(num<(-3-1)){
+                        if(num<(-4)){
                                 tryte[2]=-1;
                                 num+=9;
                         }
                 }else{
-                        if(num>(3+1)){
+                        if(num>(4)){
                                 tryte[2]=1;
                                 num-=9;
                         }
@@ -197,99 +260,99 @@ int opcode(char * str){
 	int i;
 	char cmd[MAX_CMD_ARGS][BUF_LEN];
 	if(!strncmp(str, "OUT A\n",5)){
-		puts("-1 -1 0 0 0 0 0 0 0");
+		puts("-1 -1 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "OUT B\n",5)){
-		puts("0 -1 0 0 0 0 0 0 0");
+		puts("0 -1 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "OUT C\n",5)){
-		puts("1 -1 0 0 0 0 0 0 0");
+		puts("1 -1 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	}else if(!strncmp(str, "IN A\n",5)){
-		puts("-1 0 1 0 0 0 0 0 0");
+		puts("-1 0 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "IN B\n",5)){
-		puts("0 0 1 0 0 0 0 0 0");
+		puts("0 0 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "IN C\n",5)){
-		puts("0 0 1 0 0 0 0 0 0");
+		puts("0 0 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	}else if(!strncmp(str, "LD A\n",5)){
-		puts("-1 -1 -1 0 0 0 0 0 0");
+		puts("-1 -1 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "LD B\n",5)){
-		puts("0 -1 -1 0 0 0 0 0 0");
+		puts("0 -1 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "LD C\n",5)){
-		puts("1 -1 -1 0 0 0 0 0 0");
+		puts("1 -1 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	/* Increment */
 	}else if(!strncmp(str, "INC A\n",6)){
-		puts("-1 0 -1 0 0 0 0 0 0");
+		puts("-1 0 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "INC B\n",6)){
-		puts("0 0 -1 0 0 0 0 0 0");
+		puts("0 0 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "INC C\n",6)){
-		puts("1 0 -1 0 0 0 0 0 0");
+		puts("1 0 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	/* Skip */
 	}else if(!strncmp(str, "SKP A\n",6)){
-		puts("-1 1 -1 0 0 0 0 0 0");
+		puts("-1 1 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "SKP B\n",6)){
-		puts("0 1 -1 0 0 0 0 0 0");
+		puts("0 1 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "SKP C\n",6)){
-		puts("1 1 -1 0 0 0 0 0 0");
+		puts("1 1 -1 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	/* Misc */
 	}else if(!strncmp(str, "HALT\n",5)){
-		puts("-1 0 0 0 0 0 0 0 0");
+		puts("-1 0 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "NOOP\n",5)){
-		puts("0 0 0 0 0 0 0 0 0");
+		puts("0 0 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "JP\n",3)){
-		puts("1 0 0 0 0 0 0 0 0");
+		puts("1 0 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	/* Invert */
 	}else if(!strncmp(str, "INV A\n",6)){
-		puts("-1 1 0 0 0 0 0 0 0");
+		puts("-1 1 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "INV B\n",6)){
-		puts("0 1 0 0 0 0 0 0 0");
+		puts("0 1 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "INV C\n",6)){
-		puts("1 1 0 0 0 0 0 0 0");
+		puts("1 1 0 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	/* Store */
 	}else if(!strncmp(str, "STO A\n",6)){
-		puts("-1 -1 1 0 0 0 0 0 0");
+		puts("-1 -1 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "STO B\n",6)){
-		puts("0 -1 1 0 0 0 0 0 0");
+		puts("0 -1 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "STO C\n",6)){
-		puts("1 -1 1 0 0 0 0 0 0");
+		puts("1 -1 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 
 	/* ADD */
 	}else if(!strncmp(str, "ADD A\n",6)){
-		puts("-1 1 1 0 0 0 0 0 0");
+		puts("-1 1 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "ADD B\n",6)){
-		puts("0 1 1 0 0 0 0 0 0");
+		puts("0 1 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	}else if(!strncmp(str, "ADD C\n",6)){
-		puts("1 1 1 0 0 0 0 0 0");
+		puts("1 1 1 0 0 0 0 0 0 0 0 0");
 		curr++;
 	
 
